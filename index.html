@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HZ Perfume and Attar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --glass-bg: rgba(255,255,255,0.14);
+      --glass-border: rgba(255,255,255,0.25);
+      --accent: rgba(130,95,255,0.95);
+      --accent-2: rgba(88,210,255,0.9);
+      --muted: rgba(255,255,255,0.8);
+      --page-bg: linear-gradient(135deg, rgba(12,13,22,1) 0%, rgba(23,24,34,1) 100%);
+      --glass-shadow: 0 8px 30px rgba(3,6,23,0.6);
+      --card-radius: 16px;
+      --glass-blur: 10px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+      background: var(--page-bg);
+      color: white; -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;min-height:100%;
+    }
+    .bg-blob{position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen}
+    .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.9}
+    .b1{width:520px;height:520px;left:-120px;top:-80px;background:radial-gradient(circle at 30% 30%, rgba(130,95,255,0.8), rgba(130,95,255,0.2));}
+    .b2{width:420px;height:420px;right:-100px;bottom:-80px;background:radial-gradient(circle at 70% 70%, rgba(88,210,255,0.85), rgba(88,210,255,0.15));}
+
+    .container{max-width:1200px;margin:0 auto;position:relative;z-index:5}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .brand{display:flex;flex-direction:column}
+    .brand .title{font-family:'Playfair Display';font-size:22px;color:var(--muted)}
+    .brand .sub{font-size:12px;color:rgba(255,255,255,0.65)}
+    nav{display:flex;gap:14px;align-items:center}
+    nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:8px 12px;border-radius:999px;font-weight:600}
+    .glass{background: var(--glass-bg);border: 1px solid var(--glass-border);border-radius: var(--card-radius);padding:18px;backdrop-filter: blur(var(--glass-blur)) saturate(1.05);box-shadow: var(--glass-shadow);}
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:center;margin-bottom:22px}
+    .hero h1{font-family:'Playfair Display';font-size:34px;color:rgba(255,255,255,0.96)}
+    .hero p{color:rgba(255,255,255,0.78)}
+    .cta{display:inline-block;padding:10px 16px;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;font-weight:700;text-decoration:none}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .product{border-radius:14px;overflow:hidden;position:relative}
+    .product img{width:100%;height:220px;object-fit:cover;border-radius:12px;display:block}
+    .p-name{font-weight:700;margin-top:10px}
+    .p-price{font-weight:800;color:var(--accent);margin-top:6px}
+    .p-desc{color:rgba(255,255,255,0.78);font-size:13px;margin-top:8px}
+    .p-actions{display:flex;gap:8px;margin-top:12px}
+    .btn{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));cursor:pointer;font-weight:700;color:white}
+    .btn.buy{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021124;border:none}
+
+    footer{margin-top:24px;text-align:center;color:rgba(255,255,255,0.5)}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="bg-blob" aria-hidden><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="title">HZ Perfume and Attar</div>
+        <div class="sub">Perfume & Attar collection</div>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="product.html">Products</a>
+        <a href="thankyou.html">Orders</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero glass">
+        <div>
+          <h1>HZ perfumes</h1>
+          <p>Minimal, modern, and slightly dreamy. Browse our small batch collection.</p>
+          <a class="cta" href="product.html">Explore collection</a>
+        </div>
+        <div><img src="https://binzahidpk.com/cdn/shop/files/IMG_5423.jpg?v=1715679658&width=300" alt="hero image"></div>
+      </section>
+
+      <section style="margin-top:18px">
+        <div class="glass" style="margin-bottom:12px"><strong>Best sellers</strong></div>
+        <div class="grid" id="productGrid"></div>
+      </section>
+    </main>
+
+    <footer>© 2025 HZ Perfume and Attar</footer>
+  </div>
+
+<script>
+  // --- product data (single source of truth for all pages) ---
+  const products = [
+    {id:'p1', name:'Blue sea by HZ Attar', price:299, img:'https://binzahidpk.com/cdn/shop/files/IMG_5423.jpg?v=1715679658&width=400', desc:'3ml|A refreshing and invigorating fragrance for men, characterized by its aquatic and fresh scent profile.'},
+    {id:'p2', name:'Tuscan Leather Attar by HZ Attar', price:349, img:'https://www.getyourstuff.pk/wp-content/uploads/2024/07/Tuscan-Leather-By-Tom-Ford.webp', desc:'3ml|A bold, luxurious, and sophisticated fragrance for men and women.'},
+    {id:'p3', name:'White Oud', price:299, img:'https://img.drz.lazcdn.com/static/pk/p/502f5bb6ac457f2e311dd5272df016dc.png_960x960q80.png_.webp', desc:'3ml|A sophisticated and modern oriental woody fragrance.'},
+    {id:'p4', name:'Jasmine Attar', price:299, img:'https://m.media-amazon.com/images/I/61YoucZsfWL._UF1000,1000_QL80_.jpg', desc:'3ml|A natural perfume oil extracted from jasmine flowers.'},
+   
+  ];
+
+  // persist products so other pages read same list
+  localStorage.setItem('hz_products', JSON.stringify(products));
+
+  // render grid
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = products.map(p=>`
+    <article class="product glass">
+      <img src="${p.img}" alt="${p.name}">
+      <div style="padding:12px">
+        <div class="p-name">${p.name}</div>
+        <div class="p-price">PKR ${p.price.toLocaleString()}</div>
+        <div class="p-desc">${p.desc}</div>
+        <div class="p-actions">
+          <button class="btn" onclick="viewProduct('${p.id}')">View</button>
+          <button class="btn buy" onclick="buyProduct('${p.id}')">Buy</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  function viewProduct(id){
+    // open product detail page (same design)
+    location.href = `product.html?id=${encodeURIComponent(id)}`;
+  }
+  function buyProduct(id){
+    // open buy page with product id and quantity = 1
+    location.href = `buy.html?id=${encodeURIComponent(id)}&qty=1&mode=buy`;
+  }
+</script>
+</body>
+</html>
