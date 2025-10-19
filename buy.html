@@ -84,7 +84,7 @@
   function qs(k){ return new URLSearchParams(location.search).get(k) }
   const pid = qs('id') || null;
   const qty = Math.max(1, parseInt(qs('qty') || '1'));
-  const DELIVERY = 350;
+  const DELIVERY = 300;
 
   const stored = localStorage.getItem('hz_products');
   const products = stored ? JSON.parse(stored) : [];
@@ -168,5 +168,6 @@
 </script>
 </body>
 </html>
+
 
 
