@@ -24,7 +24,7 @@
     .glass{background:var(--glass-bg);border:1px solid var(--glass-border);padding:16px;border-radius:12px;box-shadow:var(--glass-shadow)}
     .form input, .form textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-top:6px}
     .label{font-size:13px;color:var(--muted);margin-top:10px}
-    .pay-row{display:flex;gap:10px;align-items:center;margin-top:8px}
+    .pay-row{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
     .radio-label{display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);}
     .radio-label input{transform:scale(1.05)}
     .summary img{width:100%;border-radius:8px;margin-bottom:12px}
@@ -41,34 +41,34 @@
       <section>
         <div class="glass form">
           <h3>Shipping details</h3>
+          <form id="orderForm" action="https://formspree.io/f/mgvnqoqk" method="POST">
+            <div class="label">Full name</div>
+            <input name="name" id="name" placeholder="Full name" required>
 
-          <div class="label">Full name</div>
-          <input id="name" placeholder="Full name">
+            <div class="label">Phone number</div>
+            <input name="phone" id="phone" placeholder="03XXXXXXXXX" required>
 
-          <div class="label">Phone number</div>
-          <input id="phone" placeholder="03XXXXXXXXX">
+            <div class="label">Address</div>
+            <textarea name="address" id="address" rows="3" placeholder="House, street, city, postal code" required></textarea>
 
-          <div class="label">Address</div>
-          <textarea id="address" rows="3" placeholder="House, street, city, postal code"></textarea>
+            <div class="label">Landmark (optional)</div>
+            <input name="landmark" id="landmark" placeholder="Nearby landmark (optional)">
 
-          <div class="label">Landmark (optional)</div>
-          <input id="landmark" placeholder="Nearby landmark (optional)">
+            <div class="label">CNIC (optional)</div>
+            <input name="cnic" id="cnic" placeholder="12345-1234567-1">
 
-          <div class="label">CNIC (optional)</div>
-          <input id="cnic" placeholder="12345-1234567-1">
+            <h3 class="label" style="margin-top:14px">Payment method</h3>
+            <div class="pay-row">
+              <label class="radio-label"><input type="radio" name="payMethod" value="easypaisa" required> EasyPaisa</label>
+              <label class="radio-label"><input type="radio" name="payMethod" value="jazzcash"> JazzCash</label>
+              <label class="radio-label"><input type="radio" name="payMethod" value="cod"> Cash on Delivery</label>
+              <label class="radio-label"><input type="radio" name="payMethod" value="bank"> Bank Transfer</label>
+            </div>
 
-          <h3 class="label" style="margin-top:14px">Payment method</h3>
+            <div id="paymentDetails" style="margin-top:12px;display:none" class="glass"></div>
 
-          <div class="pay-row">
-            <label class="radio-label"><input type="radio" name="payMethod" value="easypaisa"> EasyPaisa</label>
-            <label class="radio-label"><input type="radio" name="payMethod" value="jazzcash"> JazzCash</label>
-            <label class="radio-label"><input type="radio" name="payMethod" value="cod"> Cash on Delivery</label>
-            <label class="radio-label"><input type="radio" name="payMethod" value="bank"> Bank Transfer</label>
-          </div>
-
-          <div id="paymentDetails" style="margin-top:12px;display:none" class="glass"></div>
-
-          <button id="placeOrder" class="btn-pay">Place Order</button>
+            <button type="submit" class="btn-pay">Place Order</button>
+          </form>
         </div>
       </section>
 
@@ -86,12 +86,10 @@
   const qty = Math.max(1, parseInt(qs('qty') || '1'));
   const DELIVERY = 350;
 
-  // load products set by index
   const stored = localStorage.getItem('hz_products');
   const products = stored ? JSON.parse(stored) : [];
   const p = products.find(x=>x.id===pid) || products[0] || {id:'p1', name:'Product', price:0, img:'https://picsum.photos/seed/default/800/600'};
 
-  // build summary
   const subtotal = (p.price * qty);
   const total = subtotal + DELIVERY;
   const summary = document.getElementById('summaryCard');
@@ -103,114 +101,69 @@
     <div class="total">Total: PKR ${total.toLocaleString()}</div>
   `;
 
-  // payment details box behaviour
+  // payment details behaviour
   const payInputs = Array.from(document.querySelectorAll('input[name="payMethod"]'));
   const detailsEl = document.getElementById('paymentDetails');
 
   function hidePaymentDetails(){ detailsEl.style.display = 'none'; detailsEl.innerHTML = ''; }
-
-  function showEasyPaisa(){
-    detailsEl.style.display = 'block';
-    detailsEl.innerHTML = `
-      <div style="font-weight:700;margin-bottom:8px">EasyPaisa</div>
-      <div style="color:var(--muted);margin-bottom:8px">Send payment to: <strong>0344-2898373</strong></div>
-      <input id="ep_sender" placeholder="Your EasyPaisa number (03XXXXXXXXX)" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px;background:transparent;color:#fff">
-      <input id="ep_txn" placeholder="Transaction / Reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">
-      <div style="color:var(--muted);font-size:13px;margin-top:8px">Keep TXN ID / screenshot for verification.</div>
-    `;
-  }
-  function showJazzCash(){
-    detailsEl.style.display = 'block';
-    detailsEl.innerHTML = `
-      <div style="font-weight:700;margin-bottom:8px">JazzCash</div>
-      <div style="color:var(--muted);margin-bottom:8px">Send payment to: <strong>coming soon</strong></div>
-      <input id="jc_sender" placeholder="Your JazzCash number (03XXXXXXXXX)" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px;background:transparent;color:#fff">
-      <input id="jc_txn" placeholder="Transaction / Reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">
-    `;
-  }
-  function showCOD(){
-    detailsEl.style.display = 'block';
-    detailsEl.innerHTML = `<div style="font-weight:700">Cash on Delivery</div><div style="color:var(--muted);margin-top:8px">Pay in cash when the delivery arrives.</div>`;
-  }
-  function showBank(){
-    detailsEl.style.display = 'block';
-    detailsEl.innerHTML = `
-      <div style="font-weight:700;margin-bottom:8px">Bank Transfer</div>
-      <div style="color:var(--muted);margin-bottom:8px">Account:coming soon </div>
-      <input id="bank_txn" placeholder="Bank transaction/reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">
-    `;
-  }
+  function showEasyPaisa(){ detailsEl.style.display='block'; detailsEl.innerHTML=`<div style="font-weight:700;margin-bottom:8px">EasyPaisa</div><div style="color:var(--muted);margin-bottom:8px">Send payment to: <strong>0344-2898373</strong></div><input name="ep_sender" placeholder="Your EasyPaisa number (03XXXXXXXXX)" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px;background:transparent;color:#fff"><input name="ep_txn" placeholder="Transaction / Reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff"><div style="color:var(--muted);font-size:13px;margin-top:8px">Keep TXN ID / screenshot for verification.</div>`; }
+  function showJazzCash(){ detailsEl.style.display='block'; detailsEl.innerHTML=`<div style="font-weight:700;margin-bottom:8px">JazzCash</div><div style="color:var(--muted);margin-bottom:8px">Send payment to: <strong>coming soon</strong></div><input name="jc_sender" placeholder="Your JazzCash number (03XXXXXXXXX)" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px;background:transparent;color:#fff"><input name="jc_txn" placeholder="Transaction / Reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">`; }
+  function showCOD(){ detailsEl.style.display='block'; detailsEl.innerHTML=`<div style="font-weight:700">Cash on Delivery</div><div style="color:var(--muted);margin-top:8px">Pay in cash when the delivery arrives.</div>`; }
+  function showBank(){ detailsEl.style.display='block'; detailsEl.innerHTML=`<div style="font-weight:700;margin-bottom:8px">Bank Transfer</div><div style="color:var(--muted);margin-bottom:8px">Account: coming soon</div><input name="bank_txn" placeholder="Bank transaction/reference ID" style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff">`; }
 
   payInputs.forEach(r => r.addEventListener('change', e=>{
-    const v = e.target.value;
     hidePaymentDetails();
-    if(v === 'easypaisa') showEasyPaisa();
-    else if(v === 'jazzcash') showJazzCash();
-    else if(v === 'cod') showCOD();
-    else if(v === 'bank') showBank();
+    if(e.target.value==='easypaisa') showEasyPaisa();
+    else if(e.target.value==='jazzcash') showJazzCash();
+    else if(e.target.value==='cod') showCOD();
+    else if(e.target.value==='bank') showBank();
   }));
 
-  // place order handler
-  document.getElementById('placeOrder').addEventListener('click', ()=>{
-    const name = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const landmark = document.getElementById('landmark').value.trim();
-    const cnic = document.getElementById('cnic').value.trim();
-    const paySel = document.querySelector('input[name="payMethod"]:checked');
+  // --- submit handler with product details and redirect ---
+  const orderForm = document.getElementById('orderForm');
+  orderForm.addEventListener('submit', function(e){
+    e.preventDefault(); // prevent default submit
 
-    if(!name || !phone || !address || !paySel){
-      alert('Please fill name, phone, address and select a payment method.');
-      return;
-    }
+    // Remove old hidden inputs
+    const oldHidden = orderForm.querySelectorAll('.dynamic-hidden');
+    oldHidden.forEach(inp => inp.remove());
 
-    const paymentMethod = paySel.value;
-    let paymentDetails = {};
-
-    if(paymentMethod === 'easypaisa'){
-      const sender = (document.getElementById('ep_sender') || {}).value || '';
-      const txn = (document.getElementById('ep_txn') || {}).value || '';
-      if(!sender || !txn){ alert('Please provide your EasyPaisa number and transaction ID.'); return; }
-      paymentDetails = { sender, txn };
-    } else if(paymentMethod === 'jazzcash'){
-      const sender = (document.getElementById('jc_sender') || {}).value || '';
-      const txn = (document.getElementById('jc_txn') || {}).value || '';
-      if(!sender || !txn){ alert('Please provide your JazzCash number and transaction ID.'); return; }
-      paymentDetails = { sender, txn };
-    } else if(paymentMethod === 'bank'){
-      const txn = (document.getElementById('bank_txn') || {}).value || '';
-      if(!txn){ alert('Please provide bank transaction/reference ID.'); return; }
-      paymentDetails = { txn };
-    }
-
-    const order = {
-      id: 'ORD' + Date.now(),
-      product: { id: p.id, name: p.name, qty, price: p.price },
-      subtotal,
+    // Add hidden inputs for product info
+    const data = {
+      productName: p.name,
+      productQty: qty,
+      productPrice: p.price,
+      subtotal: subtotal,
       delivery: DELIVERY,
-      total,
-      shipping: { name, phone, address, landmark, cnic },
-      payment: { method: paymentMethod, details: paymentDetails },
-      created: new Date().toISOString()
+      total: total
     };
 
-    // save locally
-    const ORD_KEY = 'hz_orders_v1';
-    const existing = JSON.parse(localStorage.getItem(ORD_KEY) || '[]');
-    existing.push(order);
-    localStorage.setItem(ORD_KEY, JSON.stringify(existing));
-
-    // OPTIONAL: if you have a Google Apps Script WebApp URL, paste it here to send the order
-    const WEBAPP = ''; // <-- paste Apps Script Web App URL if you made one
-    if(WEBAPP){
-      try {
-        fetch(WEBAPP, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(order) })
-          .catch(()=>{/* ignore network errors for now */});
-      } catch(e){}
+    for(const key in data){
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = data[key];
+      input.classList.add('dynamic-hidden');
+      orderForm.appendChild(input);
     }
 
-    // redirect to thank you
-    location.href = 'thankyou.html';
+    // Submit using fetch to Formspree
+    fetch(orderForm.action, {
+      method: 'POST',
+      body: new FormData(orderForm),
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if(response.ok){
+        // redirect to index.html after successful submit
+        window.location.href = 'index.html';
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    })
+    .catch(error => {
+      alert('Submission failed. Please check your internet connection.');
+    });
   });
 </script>
 </body>
